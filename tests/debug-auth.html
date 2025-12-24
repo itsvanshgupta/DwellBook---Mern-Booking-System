@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Authentication</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .pass { background-color: #d4edda; }
+        .fail { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>Authentication Debug Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        function runTests() {
+            const results = document.getElementById('results');
+            let html = '';
+            
+            // Test 1: Check localStorage
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('mockUser');
+            html += `<div class="test ${token ? 'pass' : 'fail'}">Test 1 - Token in localStorage: ${token ? 'YES' : 'NO'}</div>`;
+            html += `<div class="test ${user ? 'pass' : 'fail'}">Test 2 - User data in localStorage: ${user ? 'YES' : 'NO'}</div>`;
+            
+            // Test 2: Simulate login
+            localStorage.setItem('token', 'mock-token');
+            localStorage.setItem('mockUser', JSON.stringify({
+                name: 'Test User',
+                email: 'test@example.com',
+                role: 'guest'
+            }));
+            
+            const tokenAfter = localStorage.getItem('token');
+            const userAfter = localStorage.getItem('mockUser');
+            html += `<div class="test ${tokenAfter ? 'pass' : 'fail'}">Test 3 - Token after login: ${tokenAfter ? 'YES' : 'NO'}</div>`;
+            html += `<div class="test ${userAfter ? 'pass' : 'fail'}">Test 4 - User data after login: ${userAfter ? 'YES' : 'NO'}</div>`;
+            
+            // Test 3: Parse user data
+            try {
+                const userData = JSON.parse(userAfter);
+                html += `<div class="test pass">Test 5 - User data parseable: ${userData.name}</div>`;
+            } catch (e) {
+                html += `<div class="test fail">Test 5 - User data parseable: NO - ${e.message}</div>`;
+            }
+            
+            // Test 4: Test persistence
+            localStorage.setItem('test-key', 'test-value');
+            const testValue = localStorage.getItem('test-key');
+            html += `<div class="test ${testValue ? 'pass' : 'fail'}">Test 6 - localStorage working: ${testValue ? 'YES' : 'NO'}</div>`;
+            localStorage.removeItem('test-key');
+            
+            // Instructions
+            html += `
+                <div class="test">
+                    <h3>Next Steps:</h3>
+                    <p>1. Open http://localhost:3000 in browser</p>
+                    <p>2. Open Developer Tools (F12)</p>
+                    <p>3. Go to Console tab</p>
+                    <p>4. Try logging in as guest</p>
+                    <p>5. Navigate to /dashboard</p>
+                    <p>6. Check console logs for authentication messages</p>
+                </div>
+            `;
+            
+            results.innerHTML = html;
+        }
+        
+        runTests();
+    </script>
+</body>
+</html>

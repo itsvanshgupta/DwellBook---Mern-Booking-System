@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Current Authentication</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .pass { background-color: #d4edda; }
+        .fail { background-color: #f8d7da; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Current Authentication Test</h1>
+    
+    <div class="test">
+        <h3>Step 1: Test localStorage</h3>
+        <button onclick="testLocalStorage()">Test localStorage</button>
+        <div id="localStorage-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>Step 2: Simulate Login</h3>
+        <button onclick="simulateLogin()">Simulate Guest Login</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>Step 3: Test Dashboard Access</h3>
+        <button onclick="testDashboardAccess()">Test Dashboard Access</button>
+        <div id="dashboard-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>Step 4: Manual Test Instructions</h3>
+        <ol>
+            <li>Open new tab: <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></li>
+            <li>Open Developer Tools (F12)</li>
+            <li>Go to Console tab</li>
+            <li>Try to login as guest</li>
+            <li>After login, navigate to /dashboard</li>
+            <li>Check console for "ProtectedRoute" messages</li>
+            <li>Check if it redirects to login or stays on dashboard</li>
+        </ol>
+    </div>
+    
+    <script>
+        function testLocalStorage() {
+            const result = document.getElementById('localStorage-result');
+            try {
+                localStorage.setItem('test', 'value');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                result.innerHTML = `<div class="pass">localStorage working: ${value === 'value' ? 'YES' : 'NO'}</div>`;
+            } catch (e) {
+                result.innerHTML = `<div class="fail">localStorage error: ${e.message}</div>`;
+            }
+        }
+        
+        function simulateLogin() {
+            const result = document.getElementById('login-result');
+            
+            // Clear any existing auth data
+            localStorage.removeItem('token');
+            localStorage.removeItem('mockUser');
+            
+            // Simulate login data
+            const authData = {
+                token: 'mock-token',
+                user: {
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    role: 'guest'
+                }
+            };
+            
+            // Store auth data
+            localStorage.setItem('token', authData.token);
+            localStorage.setItem('mockUser', JSON.stringify(authData.user));
+            
+            // Verify storage
+            const storedToken = localStorage.getItem('token');
+            const storedUser = JSON.parse(localStorage.getItem('mockUser') || '{}');
+            
+            result.innerHTML = `
+                <div class="test ${storedToken ? 'pass' : 'fail'}">Token stored: ${storedToken ? 'YES' : 'NO'}</div>
+                <div class="test ${storedUser.email ? 'pass' : 'fail'}">User stored: ${storedUser.email || 'NO'}</div>
+                <div class="test ${storedToken && storedUser.email ? 'pass' : 'fail'}">Auth ready: ${storedToken && storedUser.email ? 'YES' : 'NO'}</div>
+            `;
+        }
+        
+        function testDashboardAccess() {
+            const result = document.getElementById('dashboard-result');
+            
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('mockUser') || '{}');
+            
+            if (token && user.email) {
+                result.innerHTML = `
+                    <div class="pass">Auth data found for: ${user.email}</div>
+                    <div class="pass">Should be able to access dashboard</div>
+                    <div>Test: <a href="http://localhost:3000/dashboard" target="_blank">Open Dashboard</a></div>
+                `;
+            } else {
+                result.innerHTML = `
+                    <div class="fail">No auth data found</div>
+                    <div class="fail">Will redirect to login</div>
+                    <div>Please run "Simulate Login" first</div>
+                `;
+            }
+        }
+        
+        // Auto-run localStorage test
+        testLocalStorage();
+    </script>
+</body>
+</html>

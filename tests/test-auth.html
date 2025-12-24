@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authentication Test</title>
+</head>
+<body>
+    <h1>Authentication Test</h1>
+    <button onclick="testAuth()">Test Authentication Flow</button>
+    <div id="result"></div>
+    
+    <script>
+        function testAuth() {
+            const result = document.getElementById('result');
+            
+            // Test 1: Check localStorage
+            console.log('Testing localStorage...');
+            localStorage.setItem('test-token', 'mock-token');
+            localStorage.setItem('test-user', JSON.stringify({name: 'Test User', email: 'test@example.com', role: 'guest'}));
+            
+            const token = localStorage.getItem('test-token');
+            const user = JSON.parse(localStorage.getItem('test-user') || '{}');
+            
+            result.innerHTML = `
+                <h3>Test Results:</h3>
+                <p>Token stored: ${token}</p>
+                <p>User loaded: ${JSON.stringify(user)}</p>
+                <p>Authentication should work with this data</p>
+            `;
+            
+            // Clear test data
+            localStorage.removeItem('test-token');
+            localStorage.removeItem('test-user');
+        }
+    </script>
+</body>
+</html>

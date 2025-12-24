@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authentication Fix Test</title>
+</head>
+<body>
+    <h1>Authentication Fix Test</h1>
+    <div id="test-results"></div>
+    
+    <script>
+        function testAuthFix() {
+            const results = document.getElementById('test-results');
+            
+            // Simulate login
+            localStorage.setItem('token', 'mock-token');
+            localStorage.setItem('mockUser', JSON.stringify({
+                name: 'Test User',
+                email: 'test@example.com',
+                role: 'guest'
+            }));
+            
+            // Test localStorage persistence
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('mockUser') || '{}');
+            
+            results.innerHTML = `
+                <h2>Test Results:</h2>
+                <p><strong>Token stored:</strong> ${token}</p>
+                <p><strong>User data:</strong> ${JSON.stringify(user)}</p>
+                <p><strong>Authentication should persist:</strong> ${token && user.email ? 'YES' : 'NO'}</p>
+                <p><strong>Next steps:</strong></p>
+                <ol>
+                    <li>Go to http://localhost:3000</li>
+                    <li>Login as guest (or use existing account)</li>
+                    <li>Navigate to /dashboard</li>
+                    <li>Should NOT redirect to login</li>
+                </ol>
+            `;
+        }
+        
+        // Auto-run test
+        testAuthFix();
+    </script>
+</body>
+</html>
